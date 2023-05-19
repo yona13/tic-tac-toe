@@ -1,16 +1,7 @@
 # tic-tac-toe
 Tic-Tac-Toe - The Odin Project Intermediate JavaScript Project
 
-## Console Game
-* CONGRATULATIONS y *
- X | O |  
-
- - * - * - 
-
- X | X | X
-
- - * - * - 
-
- O |   | O
-
-  - Above is the first game I played against myself
+## Resources
+ - Natural Mono by Vasily Draigo from https://fontlibrary.org/en/font/natural-mono
+ - Ballpoint Pen from https://fontlibrary.org/en/font/ballpoint-pen
+ - Pixel Operator by Jayvee Enaguas from https://fontlibrary.org/en/font/pixel-operator

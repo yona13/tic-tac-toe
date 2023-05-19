@@ -5,9 +5,32 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic-Tac-Toe - The Odin Project Intermediate JavaScript Project</title>
+    <link rel="stylesheet" href="./assets/css/normalise.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
     <script src="./assets/js/game.js" defer></script>
+    <script src="./assets/js/agent.js" defer></script>
+    <script src="./assets/js/layout.js" defer></script>
 </head>
 <body>
-    
+    <div class="container">
+        <div class="nav">
+            <button class="play">Play</button>
+        </div>
+        <div class="display">
+            <div class="board"></div>
+            <img src="./assets/images/desk.jpg" alt="desk"/>
+        </div>
+        <div class="footer">Yona &#169; 2023</div>
+    </div>
+    <div class="overlay"></div>
+    <div class="generic-selector">
+        <h1>Select a new <span class="generic-title"></span></h1>
+        <span>Current <span class="current-object"></span></span>
+        <div class="selector-options"></div>
+        <button class="selector-confirm">Confirm</button>
+    </div>
+    <div class="alert">
+        <h1 class="alert-message"></h1>
+    </div>
 </body>
 </html>

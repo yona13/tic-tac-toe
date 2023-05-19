@@ -1,0 +1,290 @@
+:root {
+    --blackboard-green: #6c9a8d;
+    --black: #0f0f0f;
+    --white: #fbf7f4;
+    --white-opaque: rgba(251, 247, 244, 0.5);
+    --wood-brown: #a1683a;
+    --ultraviolet: #525174;
+    --ultraviolet-opaque: rgba(82, 81, 116, 0.5);
+    --violet: #513b56;
+    --maroon: #590000;
+    --standard-dimension: 0.5rem;
+    --standard-time: 0.3s;
+    --icon-selector-height: 25rem;
+    --icon-selector-width: 40rem;
+}
+
+@font-face {
+    font-family: regular;
+    src: url("../fonts/Natural\ Mono-Regular.ttf");
+}
+
+@font-face {
+    font-family: pixel;
+    src: url("../fonts/PixelOperatorMono8.ttf");
+}
+
+@font-face {
+    font-family: scribble;
+    src: url("../fonts/Ballpointprint.ttf");
+}
+
+body {
+    font-family: regular;
+    background-color: var(--white);
+}
+
+.container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.nav {
+    background-color: var(--ultraviolet);
+    color: var(--white);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.play {
+    order: 2;
+    border: none;
+    border-radius: var(--standard-dimension);
+    padding: var(--standard-dimension);
+    color: inherit;
+    background-color: inherit;
+    height: fit-content;
+    transition: var(--standard-time) all ease-in-out;
+}
+
+.play:hover {
+    background-color: var(--violet);
+    box-shadow: 0 0 var(--standard-dimension) var(--white-opaque);
+}
+
+#player-1 {
+    order: 1;
+    display: grid;
+    grid-template-areas: 
+        "icon icon name marker"
+        "icon icon comp comp";
+}
+
+#player-2 {
+    order: 3;
+    display: grid;
+    grid-template-areas: 
+        "marker name icon icon"
+        "comp comp icon icon";
+}
+
+.player.computer input {
+    font-family: pixel;
+}
+
+.player span {
+    grid-area: icon;
+    font-size: 2.5rem;
+    border: 2px solid var(--violet);
+    height: 2.5rem;
+    border-radius: var(--standard-dimension);
+    transition: var(--standard-time) all ease-in-out;
+}
+
+.player span.turn {
+    border: 2px solid var(--white);
+    box-shadow: 0 0 var(--standard-dimension) var(--white-opaque);
+}
+
+.player input {
+    width: 8rem;
+    grid-area: name;
+    color: inherit;
+    text-align: center;
+    background: none;
+    border: none;
+    border-radius: var(--standard-dimension);
+    transition: var(--standard-time) all ease-in-out
+}
+
+.player input[type="text"]:focus {
+    outline: none;
+    border: 1px solid var(--white);
+    box-shadow: 0 0 var(--standard-dimension) var(--white);
+}
+
+.player .marker {
+    grid-area: marker;
+    font-size: 1.5rem;
+    font-family: scribble;
+    padding: 0;
+    border: none;
+    color: var(--white);
+    background-color: inherit;
+    transition: var(--standard-time) all ease-in-out;
+}
+
+.player .marker:hover {
+    font-size: 1.8rem;
+    /* box-shadow: 0 0 0.8rem var(--white-opaque); */
+}
+
+.player .is-computer {
+    grid-area: comp;
+    display: flex;
+    justify-content: center;
+    gap: var(--standard-dimension);
+}
+
+.player .is-computer input {
+    margin-bottom: var(--standard-dimension);
+    appearance: none;
+    height: 1rem;
+    width: 1rem;
+    border-radius: 50%;
+    border: 1px solid var(--white);
+    transition: var(--standard-time) border ease-in-out;
+}
+
+.player .is-computer input.checked {
+    border: 6px solid var(--white);
+}
+
+.display {
+    position: relative;
+}
+
+.board {
+    position: absolute;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    width: 58%;
+    height: 67%;
+    top: 18%;
+    left: 21%;
+}
+
+.cell {
+    height: 100%;
+    width: 100%;
+    border: 2px solid var(--black);
+    background-color: var(--white);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: scribble;
+    font-size: 4rem;
+}
+
+.display img {
+    width: 100vw;
+    height: auto;
+}
+
+.footer {
+    height: 5rem;
+    line-height: 5rem;
+    width: 100vw;
+    text-align: center;
+    color: var(--white);
+    background-color: var(--ultraviolet);
+}
+
+.overlay.active {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.generic-selector {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    height: var(--icon-selector-height);
+    width: var(--icon-selector-width);
+    border-radius: 5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: var(--standard-dimension);
+    align-items: center;
+    background-color: var(--ultraviolet);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform var(--standard-time) ease-in-out;
+}
+
+.generic-selector > * {
+    padding: 1rem;
+    margin: 0;
+    color: var(--white);
+}
+
+.generic-selector .current-object {
+    font-size: 2rem;
+    font-family: scribble;
+}
+
+.selector-options {
+    border: 1px solid var(--violet);
+    width: 90%;
+    height: 40%;
+    background-color: var(--white-opaque);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    overflow: scroll;
+}
+
+.selector-options > * {
+    font-size: 1.5rem;
+    font-family: scribble;
+}
+
+.selector-confirm {
+    padding: 0;
+    color: var(--violet);
+}
+
+.generic-selector.active {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.alert {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    height: fit-content;
+    width: 20rem;
+    border-radius: var(--standard-dimension);
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    gap: var(--standard-dimension);
+    align-items: center;
+    background-color: var(--blackboard-green);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform var(--standard-time) ease-in-out;
+}
+
+.alert.error {
+    background-color: var(--maroon);
+}
+
+.alert-message {
+    color: var(--white);
+    font-size: 1.5rem;
+}
+
+.alert.active {
+    transform: translate(-50%, -50%) scale(1);
+    padding: 1rem;
+}
