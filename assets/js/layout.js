@@ -14,6 +14,7 @@ const alertElement = document.querySelector(".alert");
 const alertMessage = document.querySelector(".alert-message");
 
 // Aditional Variables
+const agents = [Agent(), Agent()];
 const defaultNames = ["Nadya", "DOM"];
 const SELECT_TYPES = {
     ICON: 0,   // Icon Selection
@@ -26,6 +27,8 @@ const ALERT_TYPES = {
 };
 let currentTurn;
 let winnerName;
+let oneCompIndex = -1;
+let twoCompToggle = false;
 let markers = [
     "O", "X", "A", "B", "C", "D", "E", "F", "G", "H", 
     "I", "J", "K", "L", "M", "N", "P", "Q", "R", "S", 
@@ -42,53 +45,135 @@ for (var i = 0; i < 89; i++) availableEmoji.push(`&#${127789 + i};`);
 /* Functions */
 
 /**
- * Play Game Function
+ * Play Turn Function
  * 
- * Starts/Restarts the Game 
+ * For a given cell, play the desired move; If the move 
+ * ends the game, return true; Otherwise return false
+ * 
+ * @param {int} cell cell number on gameboard
+ * @returns true if move ends game
  */
-function playGame() {
-    // Get User defined Players with Markers
-    const gamers = document.querySelectorAll(".player");
-    let objs = [];
-    gamers.forEach(g => {
-        const nameInput = g.querySelector("input");
-        const markerButton = g.querySelector(".marker");
-        objs.push({
-            name: nameInput.value,
-            marker: markerButton.textContent
-        });
-    });
+function playTurn(cell) {
+    // Play move and get result of move
+    const gameResult = game.play(cell);
 
-    // Only start games with unique markers
-    if (objs[0].marker != objs[1].marker) {
-        game.setup(objs[0].name, objs[0].marker, objs[1].name, objs[1].marker);
+    // Update cell & icon if for a result that isn't illegal
+    const cellElement = document.querySelector(`#cell-${cell}`);
+    if (gameResult != "ILLEGAL" && gameResult != "") {
+        cellElement.textContent = gameResult;
+        const currentIcon = document.querySelector(`#${currentTurn}`);
+        currentIcon.classList.remove("turn");
         currentTurn = `icon-${game.getTurn()}`;
-        const firstIcon = document.querySelector(`#${currentTurn}`);
-        firstIcon.classList.add("turn");
-        const otherIcon = document.querySelector(`#${currentTurn === "icon-1" ? "icon-2" : "icon-1"}`);
-        otherIcon.classList.remove("turn");
-        playButton.textContent = "Restart";
-        resetCells();
+        const nextIcon = document.querySelector(`#${currentTurn}`);
+        nextIcon.classList.add("turn");
     }
-    else
-        raiseAlert(ALERT_TYPES.MARKER_MATCH_ERROR);
+
+    // Raise alert for game ending move
+    winnerName = game.getWinner();
+    if (winnerName !== "") {
+        raiseAlert(winnerName === "DRAW" ? ALERT_TYPES.DRAW : ALERT_TYPES.WIN);
+        return true;
+    } else
+        return false;
 }
 
 /**
- * Exit Window Function
+ * Computer's Turn Function
  * 
- * Returns user to main page
+ * For any computer agents enabled, this function will
+ * find the correct computer to make its move
+ * 
+ * @param {boolean} start default is false
  */
-function exitWindow() {
-    overlay.classList.remove("active");
-    genericSelector.classList.remove("active");
-    alertElement.classList.remove("active");
+function computersTurn(start=false) {
+    // If no computers, oneCompIndex should be set to -1
+    if (oneCompIndex > -1) {
+        disableCells(true); // Prevent user from playing
+        const delay = agents[oneCompIndex].getDelay(); // fake thinking time
+        setTimeout(() => {
+            const turnStatus = playTurn(agents[oneCompIndex].play(game.getGameboard(), start));
+            // For 2 players, make computer play next turn if game is ongoing
+            if (twoCompToggle) {
+                oneCompIndex = i == 0 ? 1 : 0;
+                if (!turnStatus) computersTurn();
+            } 
+            
+            // Otherwise re-enable cells for user
+            else 
+                disableCells(false);
+        }, delay);
+    }
+}
+
+/**
+ * Disable Cells Function
+ * 
+ * Disables or enables gameboard cells, preventing user from
+ * playing while the computer is taking its turn
+ * 
+ * @param {boolean} disable default is true
+ */
+function disableCells(disable=true) {
+    const cells = board.querySelectorAll(".cell");
+    cells.forEach(c => {
+        if (disable)
+            c.removeEventListener("click", cellClick);
+        else
+            c.addEventListener("click", cellClick);
+    });
+}
+
+/**
+ * Reset Cells Function
+ * 
+ * Clears markers on gameboard, if present
+ */
+function resetCells() {
+    for (var i = 0; i < 9; i++) {
+        const cell = document.querySelector(`#cell-${i}`);
+        cell.textContent = "";
+    }
+}
+
+/**
+ * Player Icon Click Event Listener
+ * 
+ * Activates the user selection window upon player icon click
+ * 
+ * @param {PointerEvent} event icon element clicked
+ */
+function playerIconClick(event) {
+    activateWindow(event.target.innerHTML, event.target.id);
+}
+
+/**
+ * Marker Click Event Listener
+ * 
+ * Activates the marker selection window upon player marker click
+ * 
+ * @param {PointerEvent} event marker element clicked
+ */
+function markerClick(event) {
+    activateWindow(event.target.innerHTML, event.target.id, SELECT_TYPES.MARKER);
+}
+
+/**
+ * Cell Click Event Listener
+ * 
+ * Plays a turn for a user
+ * 
+ * @param {PointerEvent} event cell clicked from gameboard element
+ */
+function cellClick(event) {
+    if(!playTurn(event.target.value))
+        computersTurn(); // Only play computer turn if there's an agent
 }
 
 /**
  * Fill Selector Function
  * 
  * Fills user selections either with icons or with markers
+ * 
  * @param {int} selectType default is 0, i.e. select icons 
  */
 function fillSelector(selectType=SELECT_TYPES.ICON) {
@@ -111,6 +196,7 @@ function fillSelector(selectType=SELECT_TYPES.ICON) {
  * Activate Window Function
  * 
  * Creates window for user
+ * 
  * @param {string} obj object inner HTML
  * @param {string} id element id
  * @param {int} selectType default is 0, i.e. select icons
@@ -125,9 +211,21 @@ function activateWindow(obj, id, selectType=SELECT_TYPES.ICON) {
 }
 
 /**
+ * Exit Window Function
+ * 
+ * Returns user to main page
+ */
+function exitWindow() {
+    overlay.classList.remove("active");
+    genericSelector.classList.remove("active");
+    alertElement.classList.remove("active");
+}
+
+/**
  * Raise Alert Function
  * 
  * Raise the alert window for different types of alerts
+ * 
  * @param {int} alertType default is 0, i.e. someone won
  */
 function raiseAlert(alertType=ALERT_TYPES.WIN) {
@@ -139,6 +237,8 @@ function raiseAlert(alertType=ALERT_TYPES.WIN) {
         alertMessage.textContent = `Congratulations ${winnerName}!`;
         alertElement.classList.remove("error");
         playButton.textContent = "Play";
+        setPlayerEnabled();
+        disableCells(false);
     }
 
     // Raise Alert for a draw in the Game
@@ -146,6 +246,8 @@ function raiseAlert(alertType=ALERT_TYPES.WIN) {
         alertMessage.textContent = "Draw!";
         alertElement.classList.remove("error");
         playButton.textContent = "Play";
+        setPlayerEnabled();
+        disableCells(false);
     }
 
     // Raise Error Alert for non-unique markers
@@ -156,9 +258,38 @@ function raiseAlert(alertType=ALERT_TYPES.WIN) {
 }
 
 /**
+ * Set Players Enabled Function
+ * 
+ * Function that will enabled or disable the user elements, such as:
+ *      - the player icon button
+ *      - the player name input
+ *      - the marker button
+ *      - the computer checkbox
+ * 
+ * @param {boolean} enabled default is true
+ */
+function setPlayerEnabled(enabled=true) {
+    const icons = document.querySelectorAll(".icon");
+    const inputs = document.querySelectorAll(".player-input");
+    const markers = document.querySelectorAll(".marker");
+    const checkboxes = document.querySelectorAll(".comp-check");
+
+    for (var i = 0; i < 2; i++) {
+        if (enabled)
+            icons[i].addEventListener("click", playerIconClick);
+        else
+            icons[i].removeEventListener("click", playerIconClick);
+        inputs[i].setAttribute("style", `pointer-events: ${enabled ? "auto" : "none"}`);
+        markers[i].disabled = !enabled;
+        checkboxes[i].disabled = !enabled;
+    }
+}
+
+/**
  * Create Board Cell Element
  * 
  * Creates a cell for the game board
+ * 
  * @param {int} i current index 
  * @returns div element
  */
@@ -167,6 +298,8 @@ function createBoardCellElement(i) {
     const cell = document.createElement("div");
     cell.className = "cell";
     cell.id = `cell-${i}`;
+    cell.value = i;
+    cell.addEventListener("click", cellClick);
 
     // Remove border around grid
     if (i != 4) {
@@ -181,45 +314,15 @@ function createBoardCellElement(i) {
             update += "border-bottom: none; "
         cell.setAttribute("style", update);
     }
-
-    // Add Event Listener
-    cell.addEventListener("click", (e) => {
-        const gameResult = game.play(i);
-        if (gameResult != "ILLEGAL" && gameResult != "") {
-            cell.textContent = gameResult;
-            const currentIcon = document.querySelector(`#${currentTurn}`);
-            currentIcon.classList.remove("turn");
-            currentTurn = `icon-${game.getTurn()}`;
-            const nextIcon = document.querySelector(`#${currentTurn}`);
-            nextIcon.classList.add("turn");
-        }
-
-        winnerName = game.getWinner();
-        if (winnerName == "DRAW")
-            raiseAlert(ALERT_TYPES.DRAW);
-        else if (winnerName != "")
-            raiseAlert();
-    });
-
+    
     return cell;
-}
-
-/**
- * Reset Cells Function
- * 
- * Clears markers on gameboard, if present
- */
-function resetCells() {
-    for (var i = 0; i < 9; i++) {
-        const cell = document.querySelector(`#cell-${i}`);
-        cell.textContent = "";
-    }
 }
 
 /**
  * Create Player Element Function
  * 
  * Creates a default player element for the DOM
+ * 
  * @param {int} i current index 
  * @returns div element
  */
@@ -231,17 +334,15 @@ function createPlayerElement(i) {
     player.id = `player-${i}`;
 
     // Generate icon part of element
-    const playerIcon = document.createElement("span");
+    const playerIcon = document.createElement("button");
+    playerIcon.className = "icon";
     playerIcon.id = `icon-${i}`;
     playerIcon.innerHTML = availableEmoji[i - 1];
-
-    // Create Event Listener to allow user to select an Icon
-    playerIcon.addEventListener("click", (e) => { 
-        activateWindow(playerIcon.innerHTML, playerIcon.id);
-    });
+    playerIcon.addEventListener("click", playerIconClick);
 
     // Generate input for player name
     const playerName = document.createElement("input");
+    playerName.className = "player-input";
     playerName.type = "text";
     playerName.value = defaultNames[i - 1];
 
@@ -250,9 +351,7 @@ function createPlayerElement(i) {
     marker.className = "marker";
     marker.textContent = markers[i - 1];
     marker.id = `marker-${i}`;
-    marker.addEventListener("click", (e)=> {
-        activateWindow(marker.innerHTML, marker.id, SELECT_TYPES.MARKER);
-    });
+    marker.addEventListener("click", markerClick);
 
     // Generate div to make player the computer
     const playerComputer = document.createElement("div");
@@ -260,14 +359,20 @@ function createPlayerElement(i) {
 
     // Generate checkbox input for div
     const checkbox = document.createElement("input");
+    checkbox.className = "comp-check"
     checkbox.type = "radio";
     checkbox.id = `comp-${i}`;
-    if (i == 2) checkbox.className = "checked"
+    if (i == 2) checkbox.classList.add("checked");
 
     // Create Event Listener to make player the computer
     checkbox.addEventListener("click", (e) => {
-        player.className = player.className === "player" ? "player computer" : "player";
-        checkbox.className = checkbox.className === "" ? "checked" : "";
+        const dict = {"computer": player, "checked": checkbox};
+        ["computer", "checked"].forEach(k => {
+            if (!dict[k].classList.contains(k))
+                dict[k].classList.add(k);
+            else
+                dict[k].classList.remove(k);
+        });
     });
 
     // Generate label for the checkbox
@@ -286,6 +391,108 @@ function createPlayerElement(i) {
     player.appendChild(playerComputer);
 
     return player;
+}
+
+/**
+ * Extract Player Information Function
+ * 
+ * Function that extracts user selection from DOM's 
+ * player elements, including name, maker and is-computer
+ * 
+ * @returns player array of objects
+ */
+function extractPlayerInfo() {
+    // Get Player Element information
+    const gamers = document.querySelectorAll(".player");
+    let objs = [];
+    gamers.forEach(g => {
+        // Extract name, marker and is-computer data
+        const nameInput = g.querySelector("input");
+        const markerButton = g.querySelector(".marker");
+        const computerCheck = g.querySelector(".is-computer").querySelector("input");
+
+        // Push data into array
+        objs.push({
+            name: nameInput.value,
+            marker: markerButton.textContent,
+            computer: computerCheck.classList.contains("checked")
+        });
+    });
+
+    return objs;
+}
+
+/**
+ * Handle Computer Players
+ * 
+ * If there is at least one computer player playing the game,
+ * enable each agent and then start game if computer is opening
+ * 
+ * @param {Array} objs array of player objects
+ */
+function handleComputerPlayers(objs) {
+    // Initialise Variables
+    let compStart = false;
+    let compCount = 0;
+
+    // Iterate over 2 (maximum 2 players per game)
+    for (var i = 0; i < 2; i++) {
+        if (objs[i].computer) {
+            compCount += 1;
+            oneCompIndex = compCount < 2 ? i : -1;
+            twoCompToggle = compCount == 2;
+
+            // Enable computer if not enabled
+            if (!agents[i].getEnabled())
+                agents[i].setEnabled(true, objs[i].marker, objs[i === 0 ? 1 : 0].marker);
+            if (objs[i].marker === "X" || i == 0) {
+                compStart = true;
+                oneCompIndex = i;
+            }
+        } else // Disable agents otherwise
+            agents[i].setEnabled(false);
+    }
+
+    // Run Computer Turns, only
+    if (compCount == 2) {
+        oneCompIndex = oneCompIndex === -1 ? 0 : oneCompIndex;
+        setPlayerEnabled(false);
+        resetCells();
+        computersTurn(true);
+    }
+    
+    // Start Computer's Turn first
+    else if (compStart) {
+        setPlayerEnabled(false);
+        resetCells();
+        computersTurn(true);
+    }
+}
+
+/**
+ * Play Game Function
+ * 
+ * Starts/Restarts the Game 
+ */
+function playGame() {
+    let objs = extractPlayerInfo();
+
+    // Only start games with unique markers
+    if (objs[0].marker != objs[1].marker) {
+        game.setup(objs[0].name, objs[0].marker, objs[1].name, objs[1].marker);
+        currentTurn = `icon-${game.getTurn()}`;
+        const firstIcon = document.querySelector(`#${currentTurn}`);
+        firstIcon.classList.add("turn");
+        const otherIcon = document.querySelector(`#${currentTurn === "icon-1" ? "icon-2" : "icon-1"}`);
+        otherIcon.classList.remove("turn");
+        playButton.textContent = "Restart";
+
+        handleComputerPlayers(objs);
+    }
+    
+    // Prevent the same markers
+    else
+        raiseAlert(ALERT_TYPES.MARKER_MATCH_ERROR);
 }
 
 /* Initialise DOM & Setup Event Listeners */

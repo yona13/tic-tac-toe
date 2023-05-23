@@ -86,16 +86,17 @@ body {
     font-family: pixel;
 }
 
-.player span {
+.player .icon {
     grid-area: icon;
     font-size: 2.5rem;
     border: 2px solid var(--violet);
-    height: 2.5rem;
+    height: fit-content;
+    background: none;
     border-radius: var(--standard-dimension);
     transition: var(--standard-time) all ease-in-out;
 }
 
-.player span.turn {
+.player .icon.turn {
     border: 2px solid var(--white);
     box-shadow: 0 0 var(--standard-dimension) var(--white-opaque);
 }
@@ -130,7 +131,6 @@ body {
 
 .player .marker:hover {
     font-size: 1.8rem;
-    /* box-shadow: 0 0 0.8rem var(--white-opaque); */
 }
 
 .player .is-computer {
@@ -163,10 +163,10 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
-    width: 58%;
+    width: min(58%, 440px);
     height: 67%;
     top: 18%;
-    left: 21%;
+    left: calc((100% - min(58%, 440px)) / 2);
 }
 
 .cell {
@@ -182,7 +182,10 @@ body {
 }
 
 .display img {
-    width: 100vw;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: min(100vw, 780px);
     height: auto;
 }
 
