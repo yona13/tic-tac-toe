@@ -428,7 +428,7 @@ function extractPlayerInfo() {
  * If there is at least one computer player playing the game,
  * enable each agent and then start game if computer is opening
  * 
- * @param {Array} objs array of player objects
+ * @param {Object[]} objs array of player objects
  */
 function handleComputerPlayers(objs) {
     // Initialise Variables

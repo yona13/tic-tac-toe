@@ -28,9 +28,9 @@ const Agent = () => {
      * Enables/disables agent and sets markers for both players
      * when setting enabled
      * 
-     * @param {boolean} enable enable/disable = true/false
-     * @param {string} newmarker agents marker
-     * @param {string} opposing opponents marker
+     * @param {Boolean} enable enable/disable = true/false
+     * @param {String} newmarker agents marker
+     * @param {String} opposing opponents marker
      */
     const setEnabled = (enable, newmarker="", opposing="") => {
         enabled = enable;
@@ -56,8 +56,8 @@ const Agent = () => {
      * a recursive algorithm to work backwards finding the maximum/minimum 
      * possible score an agent can get for a given gameboard
      * 
-     * @param {Array} gameboard matrix representing game
-     * @param {int} depth current level of the minimax tree
+     * @param {String[][]} gameboard matrix representing game
+     * @param {Number} depth current level of the minimax tree
      * @returns maximum/minimum possible score for a given gameboard
      */
     const minimax = (gameboard, depth=0) => {
@@ -117,8 +117,8 @@ const Agent = () => {
      * 
      * For a given game, returns the 'best' move
      * 
-     * @param {Array} current the current game
-     * @param {boolean} start game just started
+     * @param {String[][]} current the current game
+     * @param {Boolean} start game just started
      * @returns agents move
      */
     const play = (current, start=false) => {

@@ -3,8 +3,8 @@
  * 
  * Generates a Player Object
  * 
- * @param {string} name player name
- * @param {string} marker player marker
+ * @param {String} name player name
+ * @param {String} marker player marker
  * @returns player object
  */
 const Player = (name, marker) => {
@@ -34,8 +34,8 @@ const Player = (name, marker) => {
      * - - - + - - - + - - - + - - -
      *   2   | (0, 2)| (1, 2)| (2, 2)
      * 
-     * @param {int} x x-coordinate for move
-     * @param {int} y y-coordinate for move
+     * @param {Number} x x-coordinate for move
+     * @param {Number} y y-coordinate for move
      */
     const play = (x, y) => {
         scores[x + 3] += 1;                 // rows
@@ -85,7 +85,7 @@ const Player = (name, marker) => {
      * 
      * Updates player name to user desired name
      * 
-     * @param {string} newname desired name
+     * @param {String} newname desired name
      */
     const updateName = newname => { name = newname; };
 
@@ -94,7 +94,7 @@ const Player = (name, marker) => {
      * 
      * Updates player marker to user desired marker
      * 
-     * @param {string} newmarker desired marker
+     * @param {String} newmarker desired marker
      */
     const updateMarker = newmarker => { marker = newmarker; };
     
@@ -146,10 +146,10 @@ const Game = () => {
      * 
      * Setups the player array & gameboard for a new game
      * 
-     * @param {string} p1 player 1 name
-     * @param {string} m1 player 1 marker
-     * @param {string} p2 player 2 name
-     * @param {string} m2 player 2 marker
+     * @param {String} p1 player 1 name
+     * @param {String} m1 player 1 marker
+     * @param {String} p2 player 2 name
+     * @param {String} m2 player 2 marker
      */
     const setup = (p1, m1, p2, m2) => {
         // If no players exist, fill player array
@@ -205,8 +205,8 @@ const Game = () => {
      * - - - + - - - + - - - + - - -
      *   2   | (0, 2)| (1, 2)| (2, 2)
      * 
-     * @param {int} x 
-     * @param {int} y 
+     * @param {Number} x 
+     * @param {Number} y 
      * @returns true if cell is empty
      */
     const legalMove = (x, y) => { return gameboard[x][y] === " "; };
@@ -216,7 +216,7 @@ const Game = () => {
      * 
      * Checks if the player has won
      * 
-     * @param {Array} scores players scores array
+     * @param {Number[]} scores players scores array
      * @returns true if scores contains a 3
      */
     const hasWinningConfig = scores => {return scores.includes(3);};
@@ -226,7 +226,7 @@ const Game = () => {
      * 
      * Checks if the game should continue
      * 
-     * @param {int} i index of player
+     * @param {Number} i index of player
      * @returns true if player hasn't won
      */
     const evaluate = i => {
@@ -240,7 +240,7 @@ const Game = () => {
      * For a given cell-position, function returns the 
      * corresponding cartesian-coordinate
      * 
-     * @param {int} pos cell-position
+     * @param {Number} pos cell-position
      * @returns corresponding cartesian-coordinate
      */
     const cellToCartesian = pos => {
@@ -269,8 +269,8 @@ const Game = () => {
      * - - - + - - - + - - - + - - -
      *   2   | (0, 2)| (1, 2)| (2, 2)
      * 
-     * @param {int} x x-position for given move
-     * @param {int} y y-position for given move
+     * @param {Number} x x-position for given move
+     * @param {Number} y y-position for given move
      * @returns string result corresponding to move
      */
     const playXY = (x, y) => {
@@ -311,9 +311,9 @@ const Game = () => {
      * - - - + - - - + - - - + - - -
      *   2   | (0, 2)| (1, 2)| (2, 2)
      * 
-     * @param {Array} scores array of scores to update
-     * @param {int} x x-position for given move
-     * @param {int} y y-position for given move
+     * @param {Number[]} scores array of scores to update
+     * @param {Number} x x-position for given move
+     * @param {Number} y y-position for given move
      * @returns updated scores array
      */
     const updateScores = (scores, x, y) => {
@@ -331,7 +331,7 @@ const Game = () => {
      * For a given gameboard, check if game is complete &
      * returns the winner's marker, "DRAW" or "INCOMPLETE"
      * 
-     * @param {Array} gameboard matrix of cells
+     * @param {String[][]} gameboard matrix of cells
      * @returns status of the gameboard
      */
     const isGameComplete = gameboard => {
@@ -390,7 +390,7 @@ const Game = () => {
      * For a given gameboard, function will return all
      * available moves
      * 
-     * @param {Array} gameboard matrix of cells
+     * @param {String[][]} gameboard matrix of cells
      * @returns all moves available on matrix
      */
     const getAvailableMoves = gameboard => {
@@ -421,10 +421,10 @@ const Game = () => {
      * - - - + - - - + - - - + - - -
      *   2   | (0, 2)| (1, 2)| (2, 2)
      * 
-     * @param {Array} gameboard matrix of cells
-     * @param {int} x x-position for a given move
-     * @param {int} y y-position for a given move
-     * @param {string} marker marker for given move 
+     * @param {String[][]} gameboard matrix of cells
+     * @param {Number} x x-position for a given move
+     * @param {Number} y y-position for a given move
+     * @param {String} marker marker for given move 
      * @returns 
      */
     const simulate = (gameboard, x, y, marker) => {
@@ -462,8 +462,8 @@ const Game = () => {
      * - - - +  - - - - +  - - - - + - - - - -
      *   2   | 6: (0, 2)| 7: (1, 2)| 8: (2, 2)
      * 
-     * @param {int} x x-position for grid
-     * @param {int} y y-position for grid
+     * @param {Number} x x-position for grid
+     * @param {Number} y y-position for grid
      * @returns corresponding game-position
      */
     const xyToPos = (x, y) => {
@@ -484,7 +484,7 @@ const Game = () => {
      * - - - +  - - - - +  - - - - + - - - - -
      *   2   | 6: (0, 2)| 7: (1, 2)| 8: (2, 2)
      * 
-     * @param {int} pos position on gameboard
+     * @param {Number} pos position on gameboard
      * @returns marker if the game should continue (ILLEGAL if illegal move)
      */
     const play = pos => {
